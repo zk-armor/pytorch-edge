@@ -59,7 +59,7 @@ Argument = Optional[
         BaseArgumentTypes,
     ]
 ]
-# pyrefly: ignore  # invalid-annotation
+# pyrefly: ignore [invalid-annotation]
 ArgumentT = TypeVar("ArgumentT", bound=Argument)
 _P = ParamSpec("_P")
 _R = TypeVar("_R")
@@ -385,7 +385,7 @@ class Node(_NodeBase):
         Args:
             x (Node): The node to put before this node. Must be a member of the same graph.
         """
-        # pyrefly: ignore  # missing-attribute
+        # pyrefly: ignore [missing-attribute]
         self._prepend(x)
 
     @compatibility(is_backward_compatible=True)
@@ -397,7 +397,7 @@ class Node(_NodeBase):
         Args:
             x (Node): The node to put after this node. Must be a member of the same graph.
         """
-        # pyrefly: ignore  # missing-attribute
+        # pyrefly: ignore [missing-attribute]
         self._next._prepend(x)
 
     @property
@@ -698,7 +698,8 @@ class Node(_NodeBase):
             if replace_hooks:
                 for replace_hook in replace_hooks:
                     replace_hook(old=self, new=replace_with.name, user=use_node)
-            use_node._replace_input_with(self, replace_with)
+            # pyrefly: ignore [missing-attribute]
+            use_node._replace_input_with(self, replace_with)  # type: ignore[attr-defined]
         return result
 
     @compatibility(is_backward_compatible=False)
@@ -753,6 +754,24 @@ class Node(_NodeBase):
 
             return self.target in _side_effectful_functions
 
+        def subgraph_has_impure_ops(module: torch.fx.GraphModule) -> bool:
+            """
+            Return True if a GraphModule type subgraph contains any impure op, else False.
+            """
+            assert isinstance(module, torch.fx.GraphModule), (
+                "caller should only pass GraphModule to subgraph_has_impure_ops check"
+            )
+            for node in module.graph.nodes:
+                if node.op == "call_function" and node.is_impure(impure_random):
+                    return True
+                if (
+                    node.op == "call_module"
+                    and (submodule := module.get_submodule(node.target))
+                    and isinstance(submodule, torch.fx.GraphModule)
+                ):
+                    return subgraph_has_impure_ops(submodule)
+            return False
+
         # Check if an impure module.
         if self.op == "call_module":
             assert self.graph.owning_module is not None, (
@@ -762,7 +781,10 @@ class Node(_NodeBase):
             assert target_mod is not None, (
                 f"Did not find expected submodule target {self.target}"
             )
-            return getattr(target_mod, "_is_impure", False)
+            if isinstance(target_mod, torch.fx.GraphModule):
+                return subgraph_has_impure_ops(target_mod)
+            else:
+                return getattr(target_mod, "_is_impure", False)
 
         return False
 
@@ -835,7 +857,8 @@ class Node(_NodeBase):
             for replace_hook in m._replace_hooks:
                 replace_hook(old=old_input, new=new_input.name, user=self)
 
-        self._replace_input_with(old_input, new_input)
+        # pyrefly: ignore [missing-attribute]
+        self._replace_input_with(old_input, new_input)  # type: ignore[attr-defined]
 
     def _rename(self, candidate: str) -> None:
         if candidate == self.name:
