@@ -1396,7 +1396,9 @@ def debug_checks(code: types.CodeType) -> None:
     """Make sure our assembler produces same bytes as we start with"""
     dode, _ = transform_code_object(code, lambda x, y: None, safe=True)
     assert code.co_code == dode.co_code, debug_bytes(code.co_code, dode.co_code)
-    assert code.co_lnotab == dode.co_lnotab, debug_bytes(code.co_lnotab, dode.co_lnotab)
+    # co_lnotab was removed in Python 3.14, use co_linetable instead
+    if sys.version_info < (3, 14):
+        assert code.co_lnotab == dode.co_lnotab, debug_bytes(code.co_lnotab, dode.co_lnotab)
 
 
 HAS_LOCAL = set(dis.haslocal)
