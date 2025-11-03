@@ -378,13 +378,14 @@ def generate_wheels_matrix(
                 else arch_version
             )
 
-            # TODO: Enable python 3.14 for rest
+            # Python 3.14 is supported on these platforms
             if os not in [
                 "linux",
                 "linux-aarch64",
                 "linux-s390x",
                 "macos-arm64",
                 "windows",
+                "windows-arm64",
             ] and (python_version == "3.14" or python_version == "3.14t"):
                 continue
 
