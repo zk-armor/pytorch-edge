@@ -42,7 +42,7 @@ dev = [
     "jinja2",
     "lintrunner; platform_machine != 's390x' and platform_machine != 'riscv64'",
     "networkx>=2.5.1",
-    "optree>=0.13.0",
+    "optree>=0.17.0",
     "psutil",
     "sympy>=1.13.3",
     "typing-extensions>=4.13.2",
@@ -95,7 +95,7 @@ Documentation = "https://pytorch.org/docs"
 Forum = "https://discuss.pytorch.org"
 
 [project.optional-dependencies]
-optree = ["optree>=0.13.0"]
+optree = ["optree>=0.17.0"]
 opt-einsum = ["opt-einsum>=3.3"]
 pyyaml = ["pyyaml"]
 

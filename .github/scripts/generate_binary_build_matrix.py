@@ -378,7 +378,7 @@ def generate_wheels_matrix(
                 else arch_version
             )
 
-            # Python 3.14 is supported on all platforms
+            # Python 3.14 is supported on these platforms
             if os not in [
                 "linux",
                 "linux-aarch64",
