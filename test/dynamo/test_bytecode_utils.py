@@ -33,10 +33,11 @@ class BytecodeTests(torch._dynamo.test_case.TestCase):
         self.assertEqual(len(l1), len(l2))
         for p1, p2 in zip(l1, l2):
             self.assertEqual(p1, p2)
-        # TODO co_lnotab is deprecated in 3.12 and will be removed in 3.14
-        # In 3.11+,. it is computed lazily from other linetable attributes (e.g. co_linetable),
+        # co_lnotab is deprecated in 3.12 and was removed in 3.14
+        # In 3.11+, it is computed lazily from other linetable attributes (e.g. co_linetable),
         # so we do not set this attribute ourselves.
-        self.assertEqual(fn.__code__.co_lnotab, result[1].co_lnotab)
+        if sys.version_info < (3, 14):
+            self.assertEqual(fn.__code__.co_lnotab, result[1].co_lnotab)
 
     @skipIfNotPy311
     def test_linetable_311_writer2(self):
@@ -77,7 +78,9 @@ def fn():
         self.assertEqual(len(l1), len(l2))
         for p1, p2 in zip(l1, l2):
             self.assertEqual(p1, p2)
-        self.assertEqual(fn.__code__.co_lnotab, result[1].co_lnotab)
+        # co_lnotab was removed in Python 3.14
+        if sys.version_info < (3, 14):
+            self.assertEqual(fn.__code__.co_lnotab, result[1].co_lnotab)
 
     @unittest.skipIf(
         sys.version_info >= (3, 11),
